@@ -19,6 +19,9 @@ int main(int argc, char** argv) {
    char character; 
    int inobject = 0;
    int opened = 0; 
+   int instring = 0; 
+   int key = 0; 
+   int value = 0; 
    while (input >> character) {
       if (character == '{') {
          opened = 1; 
@@ -31,9 +34,42 @@ int main(int argc, char** argv) {
             return 1; 
          }
       }
+      if (character == '"' && !instring) {
+         if (!key && !value) {
+            key = 1; 
+         }
+         instring = 1; 
+      }
+      else if (character == '"' && instring) {
+         instring = 0; 
+      }
+      if (isalpha(character) && !instring) {
+         cout << "Invalid file: character outside of a string" << endl; 
+         return 1; 
+      }
+      if (character == ':' && !instring && key) {
+         value = 1; 
+         key = 0; 
+      } 
+      else if (character == ':' && !instring) {
+         cout << "Invalid file: key, value pair" << endl; 
+         return 1; 
+      }
+      if (character == ',' && value && !instring) {
+         value = 0; 
+         key = 1; 
+      } 
+      else if (character == ',' && !instring) {
+         cout << "Invalid file: value without a key" << endl; 
+         return 1; 
+      }
+   }
+   if (key) {
+      cout << "Invalid file: key opened but not completed" << endl; 
+      return 1; 
    }
    if (inobject != 0 || !opened) {
-      cout << "Invalid file" << endl; 
+      cout << "Invalid file: braces" << endl; 
       return 1; 
    }
    return 0;
