@@ -22,6 +22,8 @@ int main(int argc, char** argv) {
    int instring = 0; 
    int key = 0; 
    int value = 0; 
+   // 0: string, 1: numeric, 2: boolean, 3: numeric
+   int val_type = -1; 
    while (input >> character) {
       if (character == '{') {
          opened = 1; 
@@ -58,10 +60,26 @@ int main(int argc, char** argv) {
       if (character == ',' && value && !instring) {
          value = 0; 
          key = 1; 
+         val_type = -1; 
       } 
       else if (character == ',' && !instring) {
          cout << "Invalid file: value without a key" << endl; 
          return 1; 
+      }
+      // set val_type
+      if (val_type == -1 && value) {
+         if (character == '"') {
+            val_type = 0; 
+         }
+         else if (character == 't' || 'f') {
+            val_type = 2; 
+         }
+         else if (character == 'n') {
+            val_type = 3;
+         }
+         else { 
+            val_type = 1; 
+         }
       }
    }
    if (key) {
