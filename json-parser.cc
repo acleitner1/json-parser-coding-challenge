@@ -79,13 +79,10 @@ int main(int argc, char** argv) {
                }
             }
             else if (inval == 1 && word[i] == ' ') {
-               if (type == -1 || type == 0) {
+               if (!str) {
                   continue; 
                }
                else {
-                  cout << "word: " << word << endl; 
-                  cout << "curr char: " << i << endl; 
-                  cout << type << endl; 
                   cout << "Improper space" << endl; 
                   return 1; 
                }
@@ -96,9 +93,11 @@ int main(int argc, char** argv) {
                   return 1; 
                }
                else if (type == 1 && ((word.substr(i, 4) == "true"))) {
+                  str = 2; 
                   i+= 4; 
                }
                else if (type == 1 && (word.substr(i, 5) == "false")) {
+                  str = 2; 
                   i+=5; 
                }
                else if (type == 2 && word.substr(i, 4) != "null") {
@@ -106,11 +105,15 @@ int main(int argc, char** argv) {
                   return 1; 
                }
                else if (type == 2 && word.substr(i, 4) == "null") {
+                  str = 2; 
                   i+=4; 
                }
                else if (type == 3 && !isdigit(word[i])) {
                   cout << "Inavlid numeric value" << endl; 
                   return 1; 
+               }
+               else if (type == 3) {
+                  str = 1; 
                }
                else if (type == 0) {
                   if (word[i] == '"' && str == 0) {
@@ -170,7 +173,7 @@ int main(int argc, char** argv) {
                inkey = 0; 
             }
             else if (inval == 1 && word[i] == ' ') {
-               if (type == -1 || type == 0) {
+               if (!str) {
                   continue; 
                }
                else {
@@ -185,9 +188,11 @@ int main(int argc, char** argv) {
                }
                else if (type == 1 && ((word.substr(i, 4) == "true"))) {
                   i+= 4; 
+                  str = 2; 
                }
                else if (type == 1 && (word.substr(i, 5) == "false")) {
                   i+=5; 
+                  str = 2; 
                }
                else if (type == 2 && word.substr(i, 4) != "null") {
                   cout << "Invalid null value" << endl; 
@@ -199,6 +204,9 @@ int main(int argc, char** argv) {
                else if (type == 3 && !isdigit(word[i])) {
                   cout << "Inavlid numeric value" << endl; 
                   return 1; 
+               }
+               else if (type == 3) {
+                  str = 1; 
                }
                else if (type == 0) {
                   if (word[i] == '"' && str == 0) {
