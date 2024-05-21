@@ -78,9 +78,20 @@ int main(int argc, char** argv) {
                   type = 3; 
                }
             }
-            else if (inval == 1 && word[i] != ':' && word[i] != ',' && word[i] != ' ') { 
+            else if (inval == 1 && word[i] == ' ') {
+               if (type == -1 || type == 0) {
+                  continue; 
+               }
+               else {
+                  cout << "word: " << word << endl; 
+                  cout << "curr char: " << i << endl; 
+                  cout << type << endl; 
+                  cout << "Improper space" << endl; 
+                  return 1; 
+               }
+            }
+            else if (inval == 1 && word[i] != ':' && word[i] != ',') { 
                if (type == 1 && word.substr(i, 4) != "true" && word.substr(i, 5) != "false") {
-                  cout << word.substr(i, 4) << endl; 
                   cout << "Invalid boolean value" << endl; 
                   return 1; 
                }
@@ -158,7 +169,16 @@ int main(int argc, char** argv) {
                inval = 1; 
                inkey = 0; 
             }
-            else if (inval == 1 && word[i] != ':' && word[i] != ',' && word[i] != ' ') { 
+            else if (inval == 1 && word[i] == ' ') {
+               if (type == -1 || type == 0) {
+                  continue; 
+               }
+               else {
+                  cout << "Improper space" << endl; 
+                  return 1; 
+               }
+            }
+            else if (inval == 1 && word[i] != ':' && word[i] != ',') { 
                if (type == 1 && (word.substr(i, 4) != "true" && word.substr(i, 5) != "false")) {
                   cout << "Invalid boolean value" << endl; 
                   return 1; 
