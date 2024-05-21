@@ -73,9 +73,17 @@ int main(int argc, char** argv) {
                else if (word[i+2] == 'n') {
                   type = 2; 
                }
+               // curly array
+               else if (word[i+2] == '{') {
+                  type = 3; 
+               }
+               // bracket array
+               else if (word[i+2] == '[') {
+                  type = 4; 
+               }
                // numeric
                else {
-                  type = 3; 
+                  type = 5; 
                }
             }
             else if (inval == 1 && word[i] == ' ') {
@@ -108,11 +116,41 @@ int main(int argc, char** argv) {
                   str = 2; 
                   i+=4; 
                }
-               else if (type == 3 && !isdigit(word[i])) {
+               else if (type == 3 || type == 4) {
+                  if (word[i] == '{' && !str) {
+                     str = 1; 
+                  }
+                  else if (word[i] == '{' && str) {
+                     cout << "Invalid {" << endl; 
+                     return 1; 
+                  }
+                  else if (word[i] == '[' && !str) {
+                     str = 1; 
+                  }
+                  else if (word[i] == '[') {
+                     cout << "Invalid [" << endl; 
+                     return 1; 
+                  }
+                  else if (word[i] == ']' && str == 1) {
+                     str = 2; 
+                  }
+                  else if (word[i] == ']') {
+                     cout << "Invalid ]" << endl; 
+                     return 1; 
+                  }
+                  else if (word[i] == '}' && str == 1) {
+                     str = 2; 
+                  }
+                  else if (word[i] == '}') {
+                     cout << "Invalid }" << endl; 
+                     return 1; 
+                  }
+               }
+               else if (type == 5 && !isdigit(word[i])) {
                   cout << "Inavlid numeric value" << endl; 
                   return 1; 
                }
-               else if (type == 3) {
+               else if (type == 5) {
                   str = 1; 
                }
                else if (type == 0) {
@@ -201,11 +239,41 @@ int main(int argc, char** argv) {
                else if (type == 2 && word.substr(i, 4) == "null") {
                   i+=4; 
                }
-               else if (type == 3 && !isdigit(word[i])) {
+               else if (type == 3 || type == 4) {
+                  if (word[i] == '{' && !str) {
+                     str = 1; 
+                  }
+                  else if (word[i] == '{' && str) {
+                     cout << "Invalid {" << endl; 
+                     return 1; 
+                  }
+                  else if (word[i] == '[' && !str) {
+                     str = 1; 
+                  }
+                  else if (word[i] == '[') {
+                     cout << "Invalid [" << endl; 
+                     return 1; 
+                  }
+                  else if (word[i] == ']' && str == 1) {
+                     str = 2; 
+                  }
+                  else if (word[i] == ']') {
+                     cout << "Invalid ]" << endl; 
+                     return 1; 
+                  }
+                  else if (word[i] == '}' && str == 1) {
+                     str = 2; 
+                  }
+                  else if (word[i] == '}') {
+                     cout << "Invalid }" << endl; 
+                     return 1; 
+                  }
+               }
+               else if (type == 5 && !isdigit(word[i])) {
                   cout << "Inavlid numeric value" << endl; 
                   return 1; 
                }
-               else if (type == 3) {
+               else if (type == 5) {
                   str = 1; 
                }
                else if (type == 0) {
