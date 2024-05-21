@@ -19,9 +19,13 @@ int main(int argc, char** argv) {
    input.open(filename); 
    string word; 
    int open = -1; 
-   int inkey = 0; 
-   int inval = 0; 
+   int inkey; 
+   int inval; 
+   int type; 
    while (getline(input, word)) {
+      inkey = 0; 
+      inval = 0; 
+      type = -1; 
       if (word == "{") {
          if (open == 1) {
             cout << "Invalid opening brace" << endl; 
@@ -41,6 +45,8 @@ int main(int argc, char** argv) {
          // first, check for a colon
          inkey = 0; 
          inval = 0; 
+         // 0 is not opened, 1 is opened but not closed, 2 is opened and closed
+         int str = 0; 
          for (int i = 0; i < word.size(); i++) {
             if (word[i] == '"' && !inkey) {
                inkey = 1; 
@@ -52,13 +58,58 @@ int main(int argc, char** argv) {
                   return -1; 
                }
             }
-            if (inkey == 2 && word[i] == '"') {
+            if (inkey == 2 && word[i] == ':') {
+               inval = 1; 
+               // string
+               if (word[i+2] == '"') {
+                  type = 0; 
+               }
+               // bool 
+               else if (word[i +2] == 'f' || word[i+2] == 't') {
+                  type = 1; 
+               }
+               // null 
+               else if (word[i+2] == 'n') {
+                  type = 2; 
+               }
+               // numeric
+               else {
+                  type = 3; 
+               }
+            }
+            else if (inval == 1 && word[i] != ':' && word[i] != ',') { 
+               if (type == 1 && (word.substr(i+3) != "true" && word.substr(i, i+4) != "false")) {
+                  cout << "Invalid boolean value" << endl; 
+                  return 1; 
+               }
+               else if (type == 2 && word.substr(i+3) != "null") {
+                  cout << "Invalid null value" << endl; 
+                  return 1; 
+               }
+               else if (type == 3 && !isdigit(word[i])) {
+                  cout << "Inavlid numeric value" << endl; 
+                  return 1; 
+               }
+               else if (type == 0) {
+                  if (word[i] == '"' && str == 0) {
+                     str = 1; 
+                  }
+                  else if (word[i] == '"' && str == 1) {
+                     str = 2; 
+                  }
+                  else if (word[i] != '"' && word[i] != ' ' && str != 1) {
+                     cout << "String value opening \" incorrect" << endl;
+                     return 1; 
+                  }
+                  else if (str == 2) {
+                     cout << "String value improperly closed" << endl; 
+                     return 1; 
+                  }
+               }
+            }
+            if (word[i] == ',') {
                inval++; 
             }
-            // if (inval >= 2 && word[i] == ',') {
-            //    cout << "Invalid comma after key value pair" << endl; 
-            //    return 1; 
-            // }
          }
          if (inval != 2 && inkey != 2) {
             cout << "Invalid key value pair" << endl; 
@@ -82,7 +133,6 @@ int main(int argc, char** argv) {
                }
                else if (inkey == 0 && inval == 1) {
                   inval = 2; 
-                  //inkey = 0; 
                }
                else if (inval == 2) {
                   inval = 0; 
