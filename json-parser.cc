@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
    int inkey; 
    int inval; 
    int type; 
+   int str; 
    while (getline(input, word)) {
       inkey = 0; 
       inval = 0; 
@@ -46,7 +47,7 @@ int main(int argc, char** argv) {
          inkey = 0; 
          inval = 0; 
          // 0 is not opened, 1 is opened but not closed, 2 is opened and closed
-         int str = 0; 
+         str = 0; 
          for (int i = 0; i < word.size(); i++) {
             if (word[i] == '"' && !inkey) {
                inkey = 1; 
@@ -123,6 +124,7 @@ int main(int argc, char** argv) {
          if (word[0] == '{' && word[word.size() - 1] == '}') {
             open = 0; 
          }
+         str = 0; 
          for (int i = 0; i < word.size(); i++) {
             if (word[i] == '"') {
                if (!inkey && !inval) {
@@ -145,6 +147,41 @@ int main(int argc, char** argv) {
             if (word[i] == ':' && inkey == 2) {
                inval = 1; 
                inkey = 0; 
+            }
+            else if (inval == 1 && word[i] != ':' && word[i] != ',') { 
+               if (type == 1 && (word.substr(i+3) != "true" && word.substr(i, i+4) != "false")) {
+                  cout << "Invalid boolean value" << endl; 
+                  return 1; 
+               }
+               else if (type == 2 && word.substr(i+3) != "null") {
+                  cout << "Invalid null value" << endl; 
+                  return 1; 
+               }
+               else if (type == 3 && !isdigit(word[i])) {
+                  cout << "Inavlid numeric value" << endl; 
+                  return 1; 
+               }
+               else if (type == 0) {
+                  if (word[i] == '"' && str == 0) {
+                     str = 1; 
+                  }
+                  else if (word[i] == '"' && str == 1) {
+                     str = 2; 
+                  }
+                  else if (word[i] != '"' && word[i] != ' ' && str != 1) {
+                     cout << "String value opening \" incorrect" << endl;
+                     return 1; 
+                  }
+                  else if (str == 2) {
+                     cout << "String value improperly closed" << endl; 
+                     return 1; 
+                  }
+               }
+            }
+            if (word[i] == ',') {
+               inval= 0; 
+               str = 0; 
+               type = -1; 
             }
          //   cout << "inval: " << inval << " inkey: " << inkey << " letter: " << word[i] << endl; 
          }
