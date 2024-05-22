@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
          value = ""; 
       }
       else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0 && brackets) {
-         cout << "Unquoted key" << endl; 
+         cout << "Key syntax error" << endl; 
          return 1; 
       }
       if (val && squares == 0 && word != ']') {
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
             return 1; 
          }
          else if (backslash) {
-            if (word == 'x') {
+            if (word == 'x' || word == '0') {
                cout << "Illegal escape" << endl; 
                return 1; 
             }
