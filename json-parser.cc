@@ -86,8 +86,8 @@ int main(int argc, char** argv) {
                   type = 5; 
                }
             }
-            else if (inval == 1 && word[i] == ' ') {
-               if (!str) {
+            else if (inval == 1 && word[i] == ' ' && type != -1) {
+               if (!str || type == 0) {
                   continue; 
                }
                else {
@@ -210,8 +210,8 @@ int main(int argc, char** argv) {
                inval = 1; 
                inkey = 0; 
             }
-            else if (inval == 1 && word[i] == ' ') {
-               if (!str) {
+            else if (inval == 1 && word[i] == ' ' && type != -1) {
+               if (!str || type == 0) {
                   continue; 
                }
                else {
