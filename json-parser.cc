@@ -180,6 +180,10 @@ int main(int argc, char** argv) {
          if (word == '\\' && (character || st)) {
             backslash = 1; 
          }
+         else if (word == '\\' && !character && !st) {
+            cout << "Backslash outside of string or character" << endl; 
+            return 1; 
+         }
          else if (backslash) {
             if (word == 'x') {
                cout << "Illegal escape" << endl; 
