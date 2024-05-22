@@ -57,6 +57,10 @@ int main(int argc, char** argv) {
          }
          squares --; 
       }
+      else if (brackets == 0 && word != '}' && !squares) {
+         cout << "Improperly placed input" << endl; 
+         return 1; 
+      }
       if (first == 0) {
          if (brackets != 1 && squares != 1) {
             cout << "Must begin syntax with { or [" << endl; 
@@ -66,12 +70,12 @@ int main(int argc, char** argv) {
             first = 1; 
          }
       }
-      if (brackets < 0) {
-         cout << "Invalid curly braces" << endl; 
-         return 1; 
-      }
       if (squares < 0) {
          cout << "Invalid brackets" << endl; 
+         return 1; 
+      }
+      if (brackets < 0) {
+         cout << "Invalid curly braces" << endl; 
          return 1; 
       }
       // Checking keys and values
@@ -148,7 +152,7 @@ int main(int argc, char** argv) {
                }
 
                if (word != ' ' && !boolean && !nullval && !isdigit(word)) {
-                  cout << "Invalid boolean or null value" << endl; 
+                  cout << "Invalid value" << endl; 
                   return 1; 
                }
             }
