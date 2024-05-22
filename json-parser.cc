@@ -8,6 +8,9 @@
 #include <vector>
 
 using namespace std; 
+
+// TO MAYBE DO: 
+// Add the backslash rule to the NOT LIST part of the code 
 int main(int argc, char** argv) {  
    // Input should contain a file
    if (argc < 2) {
@@ -29,7 +32,7 @@ int main(int argc, char** argv) {
    int num = 0; 
    int nullval = 0; 
    int boolean = 0; 
-   string value = ""; 
+   string value = "";
 
    // list enforcers: 
    int character = 0; 
@@ -38,6 +41,7 @@ int main(int argc, char** argv) {
    int boo = 0; 
    int nul = 0; 
    int comma = 0; 
+   int backslash; 
    while(input >> word) {
       //cout << "word: " << word << " " << key << " " << val; 
       if (word == '{') {
@@ -171,8 +175,20 @@ int main(int argc, char** argv) {
          }
       }
       // we're in a list and we need to enforce norms for inside a list
-      else if (squares == 1) {
-         
+      else if (squares == 1 && word != '[') {
+         // need to check that backslash chars are caught 
+         if (word == '\\' && (character || st)) {
+            backslash = 1; 
+         }
+         else if (backslash) {
+            if (word == 'x') {
+               cout << "Illegal escape" << endl; 
+               return 1; 
+            }
+         }
+         else {
+            backslash = 0; 
+         }
          if (word == ',' && (st != 0 || character != 0 || number != 0 || boo != 0 || nul != 0)) {
             if (character != 0) {
                cout << "Improper character in list" << endl;
@@ -183,6 +199,8 @@ int main(int argc, char** argv) {
                return 1; 
             }
             if (boo && value != "true" && value != "false") {
+               cout << "value: " << value << endl; 
+               cout << word << endl; 
                cout << "Improper boolean in list" << endl; 
                return 1; 
             }
@@ -203,12 +221,8 @@ int main(int argc, char** argv) {
             cout << "Improper list comma" << endl;
              return 1; 
          }
-         else {
-            comma = 0; 
-         }
-
          // setting type for each item in a list
-         if (word == '\'' && !character) {
+         else if (word == '\'' && !character) {
             character = 1; 
          }
          else if (word == '\'') {
@@ -218,7 +232,7 @@ int main(int argc, char** argv) {
                return 1; 
             }
          }
-         else if (word == 'n') {
+         else if (word == 'n' && !st && !character) {
             nul = 1; 
          }
          else if (word == '"' && !st) {
@@ -227,10 +241,12 @@ int main(int argc, char** argv) {
          else if (word == '"') {
             st = 0; 
          }
-         else if (word == 'f' || 't') {
+         else if ((word == 'f' || 't') && !st && !character) {
             boo = 1; 
          }
-       
+         if (word != ',') {
+            comma = 0; 
+         }
          // Checking bools and nulls
          if (boo || nul || character) {
             value+= word; 
