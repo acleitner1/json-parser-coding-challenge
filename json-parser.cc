@@ -30,6 +30,14 @@ int main(int argc, char** argv) {
    int nullval = 0; 
    int boolean = 0; 
    string value = ""; 
+
+   // list enforcers: 
+   int character = 0; 
+   int st = 0; 
+   int number = 0; 
+   int boo = 0; 
+   int nul = 0; 
+   int comma = 0; 
    while(input >> word) {
       //cout << "word: " << word << " " << key << " " << val; 
       if (word == '{') {
@@ -52,6 +60,10 @@ int main(int argc, char** argv) {
          squares++; 
       }
       if (word == ']') {
+         if (comma) {
+            cout << "Invalid comma in list" << endl; 
+            return 1; 
+         }
          squares --; 
       }
       if (brackets < 0) {
@@ -140,7 +152,72 @@ int main(int argc, char** argv) {
             
          }
       }
-      //cout << " " << key << " " << val << endl; 
+      // we're in a list and we need to enforce norms for inside a list
+      if (val && squares == 1) {
+         
+         if (word == ',' && (st != 0 || character != 0 || number != 0 || boo != 0 || nul != 0)) {
+            if (character != 0) {
+               cout << "Improper character in list" << endl;
+               return 1; 
+            }
+            if (st != 0) {
+               cout << "Improper string in list" << endl; 
+               return 1; 
+            }
+            if (boo && value != "true" && value != "false") {
+               cout << "Improper boolean in list" << endl; 
+               return 1; 
+            }
+            if (nul && value != "null") {
+               cout << "Improper null value in list" << endl; 
+               return 1; 
+            }
+            
+            character = 0; 
+            st = 0; 
+            number = 0; 
+            boo = 0; 
+            nul = 0; 
+            comma = 1; 
+            value = ""; 
+         }
+         else if (word == ','){
+            cout << "Improper list comma" << endl;
+             return 1; 
+         }
+         else {
+            comma = 0; 
+         }
+      }
+
+      // setting type for each item in a list
+      if (word == '\'' && !character) {
+         character = 1; 
+      }
+      else if (word == '\'') {
+         character = 0; 
+         if (value.length() > 3) {
+            cout << "Improper character in list" << endl; 
+            return 1; 
+         }
+      }
+      else if (word == 'n') {
+         nul = 1; 
+      }
+      else if (word == '"' && !st) {
+         st = 1; 
+      }
+      else if (word == '"') {
+         st = 0; 
+      }
+      else if (word == 'f' || 't') {
+         boo = 1; 
+      }
+       
+      // Checking bools and nulls
+      if (boo || nul || character) {
+         value+= word; 
+      }
    }
    if (first == 0) {
       cout << "Empty input" << endl;
