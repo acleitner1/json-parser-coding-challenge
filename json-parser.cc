@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
    // All that we care is that when things get opened, they get closed. 
    // That means, that we care that the number of things goes back to zero at the end. 
    int brackets = 0; 
+   int squares = 0; 
    int first = 0; 
    int key = 0; 
    int val = 0; 
@@ -46,9 +47,18 @@ int main(int argc, char** argv) {
          brackets--; 
          val = 0; 
       }
+      if (word == '[') {
+         squares++; 
+      }
+      if (word == ']') {
+         squares --; 
+      }
       if (brackets < 0) {
          cout << "Invalid curly braces" << endl; 
          return 1; 
+      }
+      if (squares < 0) {
+         cout << "Invalid brackets" << endl; 
       }
       // Checking keys and values
       if (key == 0 && word == '"' && val == 0) {
@@ -78,7 +88,6 @@ int main(int argc, char** argv) {
             return 1; 
          }
          if (boolean && value != "true" && value != "false") {
-            cout << "value: " << value << endl; 
             cout << "Invalid boolean value" << endl; 
             return 1; 
          }
@@ -89,7 +98,7 @@ int main(int argc, char** argv) {
          boolean = 0; 
          value = ""; 
       }
-      if (val) {
+      if (val && squares == 0 && word != ']') {
          if (word == '"') {
             quotes++; 
          }
@@ -102,6 +111,12 @@ int main(int argc, char** argv) {
             else if (isdigit(word) && !boolean && !nullval && !num) {
                num = 1; 
             }
+            // nested
+            else if (word == '{') {
+               val = 0; 
+               key = 1; 
+            }
+
             else if (!boolean && !nullval) {
                if (word == 't' || word == 'f') {
                   boolean = 1; 
@@ -109,6 +124,7 @@ int main(int argc, char** argv) {
                else if (word == 'n') {
                   nullval = 1; 
                }
+
                if (word != ' ' && !boolean && !nullval && !isdigit(word)) {
                   cout << "Invalid boolean or null value" << endl; 
                   return 1; 
