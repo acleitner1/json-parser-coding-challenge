@@ -79,23 +79,23 @@ int main(int argc, char** argv) {
          return 1; 
       }
       // Checking keys and values
-      if (key == 0 && word == '"' && val == 0) {
+      if (key == 0 && word == '"' && val == 0 && brackets) {
          key++; 
       }
-      else if (key == -1 && word == '"' && val == 0) {
+      else if (key == -1 && word == '"' && val == 0 && brackets) {
          key = 1; 
       }
-      else if (key == 1 && word == '"') {
+      else if (key == 1 && word == '"' && brackets) {
          key = 0; 
       }
-      if (word == ':' && key != 0) {
+      if (word == ':' && key != 0 && brackets) {
          cout << "Invalid Key" << endl; 
          return 1; 
       }
-      else if (word == ':') {
+      else if (word == ':' && brackets) {
          val = 1; 
       }
-      else if (word == ',') {
+      else if (word == ',' && brackets) {
          if (!val) {
             cout << "Stray comma" << endl; 
             return 1; 
@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
          boolean = 0; 
          value = ""; 
       }
-      else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0 && brackets != 0) {
+      else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0 && brackets) {
          cout << "Unquoted key" << endl; 
          return 1; 
       }
@@ -136,6 +136,10 @@ int main(int argc, char** argv) {
                return 1; 
             }
             else if (isdigit(word) && !boolean && !nullval && !num) {
+               if (word == '0') {
+                  cout << "Leading zeroes not allowed" << endl; 
+                  return 1; 
+               }
                num = 1; 
             }
             // nested
