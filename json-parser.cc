@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
    int boolean = 0; 
    string value = ""; 
    while(input >> word) {
+      //cout << "word: " << word << " " << key << " " << val; 
       if (word == '{') {
          brackets++; 
       }
@@ -114,7 +115,6 @@ int main(int argc, char** argv) {
             // nested
             else if (word == '{') {
                val = 0; 
-               key = 1; 
             }
 
             else if (!boolean && !nullval) {
@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
             
          }
       }
+      //cout << " " << key << " " << val << endl; 
    }
    if (first == 0) {
       cout << "Empty input" << endl;
