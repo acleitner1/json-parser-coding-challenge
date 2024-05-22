@@ -43,15 +43,6 @@ int main(int argc, char** argv) {
       if (word == '{') {
          brackets++; 
       }
-      if (first == 0) {
-         if (brackets != 1) {
-            cout << "Must begin syntax with {" << endl; 
-            return 1; 
-         }
-         else {
-            first = 1; 
-         }
-      }
       else if (word == '}') {
          brackets--; 
          val = 0; 
@@ -65,6 +56,15 @@ int main(int argc, char** argv) {
             return 1; 
          }
          squares --; 
+      }
+      if (first == 0) {
+         if (brackets != 1 && squares != 1) {
+            cout << "Must begin syntax with { or [" << endl; 
+            return 1; 
+         }
+         else {
+            first = 1; 
+         }
       }
       if (brackets < 0) {
          cout << "Invalid curly braces" << endl; 
@@ -90,7 +90,11 @@ int main(int argc, char** argv) {
       else if (word == ':') {
          val = 1; 
       }
-      if (word == ',') {
+      else if (word == ',') {
+         if (!val) {
+            cout << "Stray comma" << endl; 
+            return 1; 
+         }
          val = 0; 
          if (quotes != 0 && quotes != 2) {
             cout << "Invalid string value" << endl; 
@@ -110,6 +114,10 @@ int main(int argc, char** argv) {
          nullval = 0; 
          boolean = 0; 
          value = ""; 
+      }
+      else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0) {
+         cout << "Unquoted key" << endl; 
+         return 1; 
       }
       if (val && squares == 0 && word != ']') {
          if (word == '"') {
@@ -225,6 +233,18 @@ int main(int argc, char** argv) {
    }
    if (key == -1) {
       cout << "Improper comma" << endl; 
+      return 1; 
+   }
+   if (key != 0) {
+      cout << "Unclosed key" << endl; 
+      return 1; 
+   }
+   if (val != 0) {
+      cout << "Unclosed val" << endl; 
+      return 1; 
+   }
+   if (brackets != 0 || squares != 0) {
+      cout << "Unbracketed input" << endl; 
       return 1; 
    }
    input.close(); 
