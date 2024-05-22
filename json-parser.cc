@@ -72,6 +72,7 @@ int main(int argc, char** argv) {
       }
       if (squares < 0) {
          cout << "Invalid brackets" << endl; 
+         return 1; 
       }
       // Checking keys and values
       if (key == 0 && word == '"' && val == 0) {
@@ -105,6 +106,7 @@ int main(int argc, char** argv) {
             return 1; 
          }
          if (boolean && value != "true" && value != "false") {
+            cout << "value: " << value << endl; 
             cout << "Invalid boolean value" << endl; 
             return 1; 
          }
@@ -115,7 +117,7 @@ int main(int argc, char** argv) {
          boolean = 0; 
          value = ""; 
       }
-      else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0) {
+      else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0 && brackets != 0) {
          cout << "Unquoted key" << endl; 
          return 1; 
       }
@@ -151,7 +153,7 @@ int main(int argc, char** argv) {
                }
             }
             if (word != ' ' && (boolean || nullval)) {
-                  value+= word; 
+               value+= word; 
             }
             if (word == ' ' && (boolean || nullval || num)) {
                cout << "Invalid Space" << endl; 
@@ -161,7 +163,7 @@ int main(int argc, char** argv) {
          }
       }
       // we're in a list and we need to enforce norms for inside a list
-      if (val && squares == 1) {
+      else if (squares == 1) {
          
          if (word == ',' && (st != 0 || character != 0 || number != 0 || boo != 0 || nul != 0)) {
             if (character != 0) {
@@ -196,35 +198,35 @@ int main(int argc, char** argv) {
          else {
             comma = 0; 
          }
-      }
 
-      // setting type for each item in a list
-      if (word == '\'' && !character) {
-         character = 1; 
-      }
-      else if (word == '\'') {
-         character = 0; 
-         if (value.length() > 3) {
-            cout << "Improper character in list" << endl; 
-            return 1; 
+         // setting type for each item in a list
+         if (word == '\'' && !character) {
+            character = 1; 
          }
-      }
-      else if (word == 'n') {
-         nul = 1; 
-      }
-      else if (word == '"' && !st) {
-         st = 1; 
-      }
-      else if (word == '"') {
-         st = 0; 
-      }
-      else if (word == 'f' || 't') {
-         boo = 1; 
-      }
+         else if (word == '\'') {
+            character = 0; 
+            if (value.length() > 3) {
+               cout << "Improper character in list" << endl; 
+               return 1; 
+            }
+         }
+         else if (word == 'n') {
+            nul = 1; 
+         }
+         else if (word == '"' && !st) {
+            st = 1; 
+         }
+         else if (word == '"') {
+            st = 0; 
+         }
+         else if (word == 'f' || 't') {
+            boo = 1; 
+         }
        
-      // Checking bools and nulls
-      if (boo || nul || character) {
-         value+= word; 
+         // Checking bools and nulls
+         if (boo || nul || character) {
+            value+= word; 
+         }
       }
    }
    if (first == 0) {
