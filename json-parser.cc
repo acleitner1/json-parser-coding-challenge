@@ -49,6 +49,7 @@ string lexical_string(string& json) {
          json = json.substr(1); 
       }
    }
+   // cout << "json after string: " << json << endl; 
    return returnable; 
 }
 string lexical_num(string& json) {
@@ -67,8 +68,6 @@ string lexical_num(string& json) {
    //    json = json.substr(1); 
    // }
    while ((isdigit(json[0]) || json[0] == 'e' || json[0] == 'E' || json[0] == '.' || json[0] == '-' || json[0] == '+') && json.length()) {
-      cout << "rawr" << endl; 
-      cout << "json 0: " << json[0] << endl; 
       returnable+= json[0]; 
       json = json.substr(1); 
    }
@@ -148,7 +147,7 @@ vector<string> parse_obj(vector<string> tokens) {
          tokens.erase(tokens.begin(), tokens.begin() +1); 
       }
       else {
-         cout << "Key must be a string" << endl; 
+         cout << "Key Error" << endl; 
          exit(1); 
       }
 
@@ -202,7 +201,9 @@ int parse(string json) {
    string temp_string; 
    vector<string> tokens; 
    while (json.length()) { 
-      
+      while (json[0] == ' ') {
+         json = json.substr(1); 
+      }
       temp_string = lexical_string(json); 
       if (temp_string != "") {
          tokens.push_back(temp_string);
@@ -219,15 +220,17 @@ int parse(string json) {
       if (temp_string != "") {
          tokens.push_back(temp_string);
       }
-      while (json[0] == ' ') {
-         json = json.substr(1); 
-      }
       if (json[0] == '{' || json[0] == '}' || json[0] == '[' || json[0] == ']' || json[0] == ',' || json[0] == ':') {
          temp_string = ""; 
          temp_string+= json[0]; 
          tokens.push_back(temp_string); 
          json = json.substr(1); 
       }
+      else {
+         cout << "Parsing Error: " << json[0] << endl; 
+         exit(1); 
+      }
+      //cout << json << endl; 
    }
    // Tokens should now be produced. 
    // TODO: iterate through the tokens and make sure that they match a valid grammar
