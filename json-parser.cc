@@ -226,7 +226,7 @@ int parse(string json) {
          tokens.push_back(temp_string); 
          json = json.substr(1); 
       }
-      else {
+      else if (json[0] != ' ') {
          cout << "Parsing Error: " << json[0] << endl; 
          exit(1); 
       }
