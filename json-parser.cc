@@ -14,12 +14,57 @@ using namespace std;
 // Check each piece that it matches a token 
 // If it doesn't, throw an exception 
 
+// Look for opening and closing quotes and then return what it is
 string lexical_string(string& json) {
-   return json; 
+   string returnable = ""; 
+   if (json[0] != '"') {
+      return returnable; 
+   }
+   else {
+      json = json.substr(1); 
+      returnable+= '"'; 
+      while (json[0] != '"' && json.length()) {
+         returnable += json[0]; 
+         json.substr(1); 
+      }
+      if (json.length() == 0) {
+         // NEED TO EXIT 
+         cout << "Unclosed string" << endl; 
+         exit(1); 
+      }
+      else {
+         returnable+= '"'; 
+         json = json.substr(1); 
+      }
+   }
+   return returnable; 
 }
 string lexical_num(string& json) {
-   return json;
+   string returnable = ""; 
+   if (!isdigit(json[0]) && json[0] != '-') {
+      return returnable; 
+   }
+   returnable += json[0]; 
+   json = json.substr(1); 
+   if (returnable == "0" && json[0] != '.') {
+      cout << "Leading zeroes not allowed" << endl; 
+      exit(1); 
+   }
+   else if (returnable == "0" && json[0] == '.') {
+      returnable += json[0]; 
+      json = json.substr(1); 
+   }
+   while ((isdigit(json[0]) || json[0] == 'e') && json.length()) {
+      returnable+= json[0]; 
+      json = json.substr(1); 
+   }
+   if (json.length() == 0) {
+      cout << "Invalid end of input" << endl; 
+      exit(1); 
+   }
+   return returnable;
 }
+
 string lexical_bool(string& json) {
    return json; 
 }
@@ -34,13 +79,21 @@ int parse(string json) {
    vector<string> tokens; 
    while (json.length()) { 
       temp_string = lexical_string(json); 
-      tokens.push_back(temp_string); 
+      if (temp_string != "") {
+         tokens.push_back(temp_string);
+      }
       temp_string = lexical_num(json); 
-      tokens.push_back(temp_string); 
+      if (temp_string != "") {
+         tokens.push_back(temp_string);
+      }
       temp_string = lexical_bool(json); 
-      tokens.push_back(temp_string); 
+      if (temp_string != "") {
+         tokens.push_back(temp_string);
+      }
       temp_string = lexical_null(json); 
-      tokens.push_back(temp_string); 
+      if (temp_string != "") {
+         tokens.push_back(temp_string);
+      }
       while (json[0] == ' ') {
          json = json.substr(1); 
       }
@@ -50,12 +103,13 @@ int parse(string json) {
          tokens.push_back(temp_string); 
          json = json.substr(1); 
       }
-      
    }
+
+   // After doing this, we'll have tokens
    return 0; 
 }
 
-int main(int argc, char** argv) {  
+int main(int argc, char** argv) {
    // Input should contain a file
    if (argc < 2) {
       cout << "Must include a file to parse" << endl; 
