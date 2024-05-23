@@ -24,7 +24,7 @@ string lexical_string(string& json) {
    else {
       json = json.substr(1); 
       returnable+= '"'; 
-      while (((json[0] != '"' && !backslash) || (json[0] == '"' && backslash)) && json.length()) {
+      while (((json[0] != '"') || (json[0] == '"' && backslash)) && json.length()) {
          if (json[0] == '\\') {
             if (backslash == 1) {
                backslash = 0; 
@@ -133,10 +133,6 @@ int parse(string json) {
          tokens.push_back(temp_string); 
          json = json.substr(1); 
       }
-      for (int i = 0; i < tokens.size(); i++) {
-         cout << tokens[i] << endl; 
-      }
-      cout << "json 0: " << json[0] << endl; 
    }
    cout << "end of parse" << endl; 
    // Tokens should now be produced. 
