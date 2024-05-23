@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
          else {
             backslash = 0; 
          }
-         if (word == ',' && (st != 0 || character != 0 || number != 0 || boo != 0 || nul != 0)) {
+         if (word == ',' && (st == 0 || st == 2|| character != 0 || number != 0 || boo != 0 || nul != 0)) {
             if (character != 0) {
                cout << "Improper character in list" << endl;
                return 1; 
@@ -207,8 +207,6 @@ int main(int argc, char** argv) {
                return 1; 
             }
             if (boo && value != "true" && value != "false") {
-               cout << "value: " << value << endl; 
-               cout << word << endl; 
                cout << "Improper boolean in list" << endl; 
                return 1; 
             }
@@ -227,7 +225,7 @@ int main(int argc, char** argv) {
          }
          else if (word == ','){
             cout << "Improper list comma" << endl;
-             return 1; 
+            return 1; 
          }
          // setting type for each item in a list
          else if (word == '\'' && !character) {
@@ -247,10 +245,14 @@ int main(int argc, char** argv) {
             st = 1; 
          }
          else if (word == '"') {
-            st = 0; 
+            st = 2; 
          }
-         else if ((word == 'f' || 't') && !st && !character) {
+         else if ((word == 'f' || word == 't') && !st && !character) {
             boo = 1; 
+         }
+         else if (character == 0 && (st == 0 || st == 2) && number == 0 && boo == 0 && nul == 0 && word != ',' && word != ' ') {
+            cout << "Missing comma in list" << endl; 
+            return 1; 
          }
          if (word != ',') {
             comma = 0; 
