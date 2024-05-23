@@ -191,7 +191,6 @@ string parse_tokens(vector<string>& tokens) {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
       return item; 
    }
-   cout << "shouldn't get here...." << endl; 
    return item; 
 }
 
@@ -203,8 +202,7 @@ int parse(string json) {
    string temp_string; 
    vector<string> tokens; 
    while (json.length()) { 
-      cout << "json length: " << json.length() << endl; 
-
+      
       temp_string = lexical_string(json); 
       if (temp_string != "") {
          tokens.push_back(temp_string);
@@ -222,7 +220,6 @@ int parse(string json) {
          tokens.push_back(temp_string);
       }
       while (json[0] == ' ') {
-         cout << "the real culprit!" << endl; 
          json = json.substr(1); 
       }
       if (json[0] == '{' || json[0] == '}' || json[0] == '[' || json[0] == ']' || json[0] == ',' || json[0] == ':') {
@@ -234,10 +231,13 @@ int parse(string json) {
    }
    // Tokens should now be produced. 
    // TODO: iterate through the tokens and make sure that they match a valid grammar
-   for (int i = 0; i < tokens.size(); i++) {
-      cout << tokens[i] << endl; 
+   if (tokens.size() > 0) {
+      string parser_returnable = parse_tokens(tokens); 
    }
-   string parser_returnable = parse_tokens(tokens); 
+   else {
+      cout << "Empty Input" << endl; 
+      return 1; 
+   }
 
    return 0; 
 }
