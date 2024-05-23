@@ -99,6 +99,104 @@ string lexical_null(string& json) {
    }
    return ""; 
 }
+string parse_tokens(vector<string>& tokens); 
+
+
+vector<string> parse_list(vector<string>& tokens) {
+   vector<string> returnable_list; 
+
+   string item = tokens[0]; 
+   if (item == "]" || item == "}") {
+      tokens.erase(tokens.begin(), tokens.begin()+1); 
+      return returnable_list; 
+   }
+   while (tokens.size()) {
+      item = parse_tokens(tokens); 
+      returnable_list.push_back(item); 
+
+      item = tokens[0]; 
+      if (item == "]") {
+         tokens.erase(tokens.begin(), tokens.begin()+1); 
+         return returnable_list; 
+      }
+      else if (item != ",") {
+         cout << "Missing comma in list" << endl;
+         exit(1);
+      }
+      else {
+         tokens.erase(tokens.begin(), tokens.begin()+1); 
+      }
+   }
+   cout << "Missing bracket at end of list" << endl; 
+   exit(1); 
+   return returnable_list; 
+}
+
+vector<string> parse_obj(vector<string> tokens) {
+   vector<string> returnable; 
+   string item = tokens[0]; 
+   string key; 
+
+   if (item == "}") {
+      tokens.erase(tokens.begin(), tokens.begin()+1); 
+      return returnable; 
+   }
+
+   while (tokens.size()) {
+      key = tokens[0]; 
+      if (key[0] == '"' && key[key.length() - 1] == '"' ) {
+         tokens.erase(tokens.begin(), tokens.begin() +1); 
+      }
+      else {
+         cout << "Key must be a string" << endl; 
+         exit(1); 
+      }
+
+      if (tokens[0] != ":") {
+         cout << "Must follow a key with a colon" << endl; 
+         exit(1); 
+      }
+      tokens.erase(tokens.begin(), tokens.begin()+1); 
+      item = parse_tokens(tokens); 
+      returnable.push_back(item); 
+      item = tokens[0]; 
+      if (item == "}") {
+         tokens.erase(tokens.begin(), tokens.begin() + 1); 
+         return returnable; 
+      }
+      else if (item != ",") {
+         cout << "Expect comma between objects" << endl; 
+         exit(1); 
+      }
+      tokens.erase(tokens.begin(), tokens.begin()+1); 
+   }
+   cout << "Missing closing curly bracket" << endl; 
+   exit(1); 
+   return returnable; 
+
+}
+
+string parse_tokens(vector<string>& tokens) {
+   string item = tokens[0]; 
+
+   if (item == "{" || item == "}") {
+      tokens.erase(tokens.begin(), tokens.begin() + 1); 
+      parse_obj(tokens); 
+   }
+   else if (item == "[") {
+      tokens.erase(tokens.begin(), tokens.begin() +1); 
+      parse_list(tokens); 
+   }
+   else {
+      tokens.erase(tokens.begin(), tokens.begin() +1); 
+      return item; 
+   }
+   cout << "shouldn't get here...." << endl; 
+   return item; 
+}
+
+
+
 // function that will break the json string into tokens
 int parse(string json) {
    // going to cut string 
@@ -134,12 +232,12 @@ int parse(string json) {
          json = json.substr(1); 
       }
    }
-   cout << "end of parse" << endl; 
    // Tokens should now be produced. 
    // TODO: iterate through the tokens and make sure that they match a valid grammar
    for (int i = 0; i < tokens.size(); i++) {
       cout << tokens[i] << endl; 
    }
+   string parser_returnable = parse_tokens(tokens); 
 
    return 0; 
 }
