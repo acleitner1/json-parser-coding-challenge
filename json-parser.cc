@@ -97,6 +97,10 @@ int main(int argc, char** argv) {
          return 1; 
       }
       else if (word == ':' && brackets) {
+         if (val == 1) {
+            cout << "Double colon" << endl; 
+            return 1; 
+         }
          val = 1; 
       }
       else if (word == ',' && brackets) {
