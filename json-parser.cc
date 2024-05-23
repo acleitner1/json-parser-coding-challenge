@@ -38,6 +38,7 @@ int main(int argc, char** argv) {
    string value = "";
 
    // list enforcers: 
+   int active_list = 0; 
    int character = 0; 
    int st = 0; 
    int number = 0; 
@@ -45,24 +46,36 @@ int main(int argc, char** argv) {
    int nul = 0; 
    int comma = 0; 
    int backslash; 
+   int leading_zero = 0; 
    while(input >> word) {
+      cout << "word: " << word << endl; 
       //cout << "word: " << word << " " << key << " " << val; 
-      if (word == '{') {
+      if (word == '{' && quotes != 1) {
          brackets++; 
+         if (active_list) {
+            active_list = 2; 
+         }
       }
-      else if (word == '}') {
+      else if (word == '}' && quotes != 1) {
          brackets--; 
          val = 0; 
+         if (active_list == 2) {
+            active_list = 1; 
+         }
       }
-      if (word == '[') {
-         squares++; 
+      if (word == '[' && quotes != 1) {
+         active_list = 1; 
+         squares ++; 
       }
-      if (word == ']') {
+      if (word == ']' && quotes != 1) {
          if (comma) {
             cout << "Invalid comma in list" << endl; 
             return 1; 
          }
          squares --; 
+         if (squares == 0) {
+            active_list = 0; 
+         }
       }
       else if (brackets == 0 && word != '}' && !squares) {
          cout << "Improperly placed input" << endl; 
@@ -85,6 +98,9 @@ int main(int argc, char** argv) {
          cout << "Invalid curly braces" << endl; 
          return 1; 
       }
+      if (word != ',') {
+         comma = 0; 
+      }
       // Checking keys and values
       if (key == 0 && word == '"' && val == 0 && brackets) {
          key++; 
@@ -100,7 +116,7 @@ int main(int argc, char** argv) {
          return 1; 
       }
       else if (word == ':' && brackets) {
-         if (val == 1) {
+         if (val == 1 && quotes != 1) {
             cout << "Double colon" << endl; 
             return 1; 
          }
@@ -112,7 +128,7 @@ int main(int argc, char** argv) {
             return 1; 
          }
          val = 0; 
-         if (quotes != 0 && quotes != 2) {
+         if (quotes == 1) {
             cout << "Invalid string value" << endl; 
             return 1; 
          }
@@ -131,25 +147,32 @@ int main(int argc, char** argv) {
          nullval = 0; 
          boolean = 0; 
          value = ""; 
+         leading_zero = 0; 
       }
       else if (word != '"' && word != '{' && word != '[' && word != ' ' && key != 1 && val == 0 && brackets) {
          cout << "Key syntax error" << endl; 
          return 1; 
       }
-      if (val && squares == 0 && word != ']') {
-         if (word == '"') {
+      if (val && active_list != 1 && word != ']') {
+         if (word == '"' && !backslash) {
             quotes++; 
          }
          // we know then that we're in a bool or a numeric or a null
          if (quotes == 0 && word != ':') {
-            if ((num) && !isdigit(word)) {
+            if ((num) && !isdigit(word) && word != 'e' && word != '.' && word != '-' && word != 'E' && word != '+') {
                cout << "Invalid number value" << endl; 
                return 1; 
             }
-            else if (isdigit(word) && !boolean && !nullval && !num) {
+            else if (num && word == '.') {
+               leading_zero = 0; 
+            }
+            else if (num && leading_zero) {
+               cout << "Leading zeroes not allowed" << endl; 
+               return 1; 
+            }
+            else if ((isdigit(word) || word == '-') && !boolean && !nullval && !num) {
                if (word == '0') {
-                  cout << "Leading zeroes not allowed" << endl; 
-                  return 1; 
+                  leading_zero = 1; 
                }
                num = 1; 
             }
@@ -166,7 +189,7 @@ int main(int argc, char** argv) {
                   nullval = 1; 
                }
 
-               if (word != ' ' && !boolean && !nullval && !isdigit(word)) {
+               if (word != ' ' && !boolean && !nullval && !isdigit(word) && word != 'e' && word != '.' && word != '-' && word != 'E' && word != '+') {
                   cout << "Invalid value" << endl; 
                   return 1; 
                }
@@ -182,7 +205,7 @@ int main(int argc, char** argv) {
          }
       }
       // we're in a list and we need to enforce norms for inside a list
-      else if (squares == 1 && word != '[') {
+      else if (active_list == 1 && word != '[' && word != ']' && word != '{' && word != '}') {
          // need to check that backslash chars are caught 
          if (word == '\\' && (character || st)) {
             backslash = 1; 
@@ -197,15 +220,12 @@ int main(int argc, char** argv) {
                return 1; 
             }
          }
-         else {
-            backslash = 0; 
-         }
          if (word == ',' && (st == 0 || st == 2|| character != 0 || number != 0 || boo != 0 || nul != 0)) {
             if (character != 0) {
                cout << "Improper character in list" << endl;
                return 1; 
             }
-            if (st != 0) {
+            if (st != 2 && st != 0) {
                cout << "Improper string in list" << endl; 
                return 1; 
             }
@@ -251,22 +271,28 @@ int main(int argc, char** argv) {
          //    cout << "Tabs not allowed in strings" << endl; 
          //    return 1; 
          // }
-         else if (word == '"') {
+         else if (word == '"' && !backslash) {
             st = 2; 
          }
          else if ((word == 'f' || word == 't') && !st && !character) {
             boo = 1; 
          }
+         else if ((isdigit(word) || word == '-') && !number) {
+            number = 1; 
+         }
          else if (character == 0 && (st == 0 || st == 2) && number == 0 && boo == 0 && nul == 0 && word != ',' && word != ' ') {
             cout << "Missing comma in list" << endl; 
             return 1; 
          }
-         if (word != ',') {
-            comma = 0; 
-         }
+         // if (word != ',') {
+         //    comma = 0; 
+         // }
          // Checking bools and nulls
          if (boo || nul || character) {
             value+= word; 
+         }
+         if (word != '\\') {
+            backslash = 0; 
          }
       }
    }
