@@ -66,11 +66,23 @@ string lexical_num(string& json) {
 }
 
 string lexical_bool(string& json) {
-   return json; 
+   if (json.substr(0, 4) == "true") {
+      json = json.substr(4); 
+      return "true"; 
+   }
+   else if (json.substr(0, 5) == "false") {
+      json = json.substr(5); 
+      return "false"; 
+   }
+   return ""; 
 }
 
 string lexical_null(string& json) {
-   return json; 
+   if (json.substr(0, 4) == "null") {
+      json.substr(4); 
+      return "null"; 
+   }
+   return ""; 
 }
 // function that will break the json string into tokens
 int parse(string json) {
