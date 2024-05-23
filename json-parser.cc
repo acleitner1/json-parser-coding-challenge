@@ -11,6 +11,9 @@ using namespace std;
 
 // TO MAYBE DO: 
 // Add the backslash rule to the NOT LIST part of the code 
+// Add the leading 0s rule to the list part of code 
+// Add the no tabs to the not list part of code 
+// Need to figure out the tab issue because its not read currently 
 int main(int argc, char** argv) {  
    // Input should contain a file
    if (argc < 2) {
@@ -244,6 +247,10 @@ int main(int argc, char** argv) {
          else if (word == '"' && !st) {
             st = 1; 
          }
+         // else if (word == '\t' && st == 1) {
+         //    cout << "Tabs not allowed in strings" << endl; 
+         //    return 1; 
+         // }
          else if (word == '"') {
             st = 2; 
          }
