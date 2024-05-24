@@ -176,21 +176,26 @@ vector<string> parse_obj(vector<string>& tokens) {
 
 string parse_tokens(vector<string>& tokens) {
    string item = tokens[0]; 
-
+   cout << "tokens" << endl; 
    // either, start parsing a new object or a new string (recursion baby) or, return the key/next item in the list
    if (item == "{") {
       tokens.erase(tokens.begin(), tokens.begin() + 1); 
+      cout << "obj 1" << endl; 
       parse_obj(tokens); 
-      return tokens[0]; 
+      cout << "obj 2" << endl; 
+      return item; 
    }
    else if (item == "[") {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
+      cout << "item 1" << endl; 
       parse_list(tokens); 
-      return tokens[0]; 
+      cout << "item 2" << endl; 
+      return item; 
    }
    else {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
-      return tokens[0]; 
+      cout << "erase" << endl; 
+      return item; 
    }
 }
 
