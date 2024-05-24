@@ -227,21 +227,26 @@ void parse_list(vector<string>& tokens) {
    exit(1); 
 }
 
-vector<string> parse_obj(vector<string>& tokens) {
-   vector<string> returnable_obj; 
+
+// Parse an objected present within a list of tokens 
+// and determine if it aligns with JSON lexical and syntactical guidelines
+void parse_obj(vector<string>& tokens) {
    string first = tokens[0]; 
    string key; 
    string val; 
+
+   // Check if object is closed 
    if (first == "}") {
       tokens.erase(tokens.begin(), tokens.begin()+1); 
-      return returnable_obj; 
+      return; 
    }  
 
+   // While there are more tokens to check, parse the object
    while (tokens.size()) {
       key = tokens[0]; 
-      // check that the key is a string
+
+      // Check that the key is a string
       if (key[0] == '"' && key[key.size() - 1] == '"') {
-         returnable_obj.push_back(key); 
          tokens.erase(tokens.begin(), tokens.begin()+1); 
       }
       else {
@@ -249,23 +254,26 @@ vector<string> parse_obj(vector<string>& tokens) {
          exit(1); 
       }
 
+      // Check that key is followed by a colon 
       if (tokens[0] != ":") {
          cout << "Keys in an object must be followed by a colon" << endl; 
          exit(1); 
       }
-      // erase the colon 
+
       tokens.erase(tokens.begin(), tokens.begin()+1); 
-      // the value we get out should be the former first item in tokens, but its already been removed
-      val = parse_tokens(tokens); 
-      returnable_obj.push_back(val); 
-      // now, the first thing in the returnable obj should be a right curly bracket or a comma 
+      // Parse the value by either calling parse list on a list value, parse object on an object value, or neither
+      parse_tokens(tokens); 
+
+      // If tokens is empty, object is unclosed 
       if (!tokens.size()) {
          cout << "Object lacks closing curly bracket" << endl; 
          exit(1); 
       }
+
+      // Check that object is closed or that items within the object are comma delimited 
       if (tokens[0] == "}") {
          tokens.erase(tokens.begin(), tokens.begin()+1); 
-         return returnable_obj; 
+         return;
       }
       else if (tokens[0] == ",") {
          tokens.erase(tokens.begin(), tokens.begin()+1);
@@ -275,18 +283,23 @@ vector<string> parse_obj(vector<string>& tokens) {
          exit(1); 
       }
    }
+
    cout << "Object lacks closing curly bracket" << endl; 
    exit(1); 
-
 }
 
+
+// Parse the first item in a list of tokens and 
+// determine if it aligns with JSON lexical and syntactical guidelines
 string parse_tokens(vector<string>& tokens) {
+
+   // JSON valid things must end with a bracket or brace 
    if (tokens.size() == 0) {
       cout << "Missing closing bracket or brace" << endl; 
    }
    string item = tokens[0]; 
 
-   // either, start parsing a new object or a new string (recursion baby) or, return the key/next item in the list
+   // Either start parsing a new object or a new list or, return the key/next item/value in the currently object/list
    if (item == "{") {
       tokens.erase(tokens.begin(), tokens.begin() + 1); 
       parse_obj(tokens); 
@@ -308,16 +321,20 @@ string parse_tokens(vector<string>& tokens) {
 }
 
 
-
-// function that will break the json string into tokens
-int parse(string json) {
-   // going to cut string 
+// Break a string into JSON tokens
+// Exit if not possible 
+void parse(string json) {
    string temp_string; 
    vector<string> tokens; 
+
    while (json.length()) { 
+      
+      // Remove leading whitespace and newline characters not contained within a string
       while (json[0] == ' ' || json[0] == '\n') {
          json = json.substr(1); 
       }
+
+      // Compare json to string, number, boolean, and null forats 
       temp_string = lexical_string(json); 
       if (temp_string != "") {
          tokens.push_back(temp_string);
@@ -334,6 +351,8 @@ int parse(string json) {
       if (temp_string != "") {
          tokens.push_back(temp_string);
       }
+
+      // Add JSON dividing elements to the list of tokens 
       if (json[0] == '{' || json[0] == '}' || json[0] == '[' || json[0] == ']' || json[0] == ',' || json[0] == ':') {
          temp_string = ""; 
          temp_string+= json[0]; 
@@ -341,12 +360,14 @@ int parse(string json) {
          json = json.substr(1); 
       }
       else if (json[0] != ' ' && json[0] != '\n' && json.length() > 0) {
-         cout << "Parsing Error: " << json[0] << endl; 
+         cout << "Input Does Not Match JSON Format: " << json[0] << endl; 
          exit(1); 
       }
    }
-   // Tokens should now be produced. 
+
+   // Check that JSON string was not empty, that it starts and ends with an opening bracket/brace 
    if (tokens.size() > 0) {
+
       if (tokens[0] != "{" && tokens[0] != "[") {
          cout << "Invalid opening to input" << endl; 
          exit(1); 
@@ -355,18 +376,21 @@ int parse(string json) {
          cout << "Invalid closing to input" << endl; 
          exit(1); 
       }
+
+      // Parse all tokens in the list 
       while (tokens.size()) {
          parse_tokens(tokens); 
       }
    }
    else {
       cout << "Empty Input" << endl; 
-      return 1; 
+      exit(1); 
    }
-
-   return 0; 
 }
 
+
+// Main wrapping function that converts input from a file 
+// into a string and passes it to parsing function
 int main(int argc, char** argv) {
    // Input should contain a file
    if (argc < 2) {
