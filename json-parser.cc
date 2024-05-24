@@ -293,6 +293,10 @@ int main(int argc, char** argv) {
    string data = ""; 
    string temp; 
    while(getline(input, temp)) {
+      cout << "temp: " << temp << endl; 
+      for (int i = 0; i < temp.length();i++) {
+         cout << temp[i] << endl; 
+      }
       data+= temp; 
    }
    int returnable = parse(data);
