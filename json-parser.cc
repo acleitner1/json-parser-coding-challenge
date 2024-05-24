@@ -225,6 +225,10 @@ int parse(string json) {
    // going to cut string 
    string temp_string; 
    vector<string> tokens; 
+   if (json.find("   ") != string::npos) {
+      cout << "Tabs are illegal" << endl; 
+      exit(1); 
+   }
    while (json.length()) { 
       while (json[0] == ' ') {
          json = json.substr(1); 
