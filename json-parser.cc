@@ -202,6 +202,10 @@ string parse_tokens(vector<string>& tokens) {
       parse_list(tokens); 
       return item; 
    }
+   else if (item == "]" || item == "}") {
+      cout << "Extra closing brace or bracket" << endl;
+      exit(1);
+   }
    else {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
       return item; 
@@ -248,7 +252,16 @@ int parse(string json) {
    }
    // Tokens should now be produced. 
    if (tokens.size() > 0) {
-      parse_tokens(tokens); 
+      if (tokens[0] != "{" && tokens[0] != "[") {
+         cout << "Invalid opening to input" << endl; 
+         exit(1); 
+      }
+      else if (tokens[tokens.size() - 1] != "}" && tokens[tokens.size() - 1] != "]") {
+         cout << "Invalid closing to input" << endl; 
+      }
+      while (tokens.size()) {
+         parse_tokens(tokens); 
+      }
    }
    else {
       cout << "Empty Input" << endl; 
