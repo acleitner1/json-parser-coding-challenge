@@ -121,6 +121,10 @@ vector<string> parse_list(vector<string>& tokens) {
       }
       else {
          tokens.erase(tokens.begin(), tokens.begin()+1); 
+         if (tokens.size() && tokens[0] == ",") {
+            cout << "Double comma in list" << endl; 
+            exit(1);
+         }
       }
    }
    cout << "Missing bracket at end of list" << endl; 
