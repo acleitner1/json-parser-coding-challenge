@@ -9,11 +9,6 @@
 
 using namespace std; 
 
-// To Do: 
-// Parse the input and break it into pieces that will then go into a list 
-// Check each piece that it matches a token 
-// If it doesn't, throw an exception 
-
 // Look for opening and closing quotes and then return what it is
 string lexical_string(string& json) {
    string returnable = ""; 
@@ -25,13 +20,8 @@ string lexical_string(string& json) {
       json = json.substr(1); 
       returnable+= '"'; 
       while (((json[0] != '"') || (json[0] == '"' && backslash)) && json.length()) {
-         if (json[0] == '\\') {
-            if (backslash == 1) {
-               backslash = 0; 
-            }
-            else {
-               backslash = 1; 
-            }
+         if (json[0] == '\\' && !backslash) {
+            backslash = 1; 
          }
          else {
             backslash = 0; 
@@ -40,7 +30,6 @@ string lexical_string(string& json) {
          json = json.substr(1); 
       }
       if (json.length() == 0) {
-         // NEED TO EXIT 
          cout << "Unclosed string" << endl; 
          exit(1); 
       }
@@ -49,9 +38,9 @@ string lexical_string(string& json) {
          json = json.substr(1); 
       }
    }
-   // cout << "json after string: " << json << endl; 
    return returnable; 
 }
+
 string lexical_num(string& json) {
    string returnable = ""; 
    if (!isdigit(json[0]) && json[0] != '-') {
@@ -98,6 +87,7 @@ string lexical_null(string& json) {
    }
    return ""; 
 }
+
 string parse_tokens(vector<string>& tokens); 
 
 
@@ -105,10 +95,11 @@ vector<string> parse_list(vector<string>& tokens) {
    vector<string> returnable_list; 
 
    string item = tokens[0]; 
-   if (item == "]" || item == "}") {
+   if (item == "]") {
       tokens.erase(tokens.begin(), tokens.begin()+1); 
       return returnable_list; 
    }
+
    while (tokens.size()) {
       item = parse_tokens(tokens); 
       returnable_list.push_back(item); 
@@ -131,66 +122,76 @@ vector<string> parse_list(vector<string>& tokens) {
    return returnable_list; 
 }
 
-vector<string> parse_obj(vector<string> tokens) {
-   vector<string> returnable; 
-   string item = tokens[0]; 
+vector<string> parse_obj(vector<string>& tokens) {
+   vector<string> returnable_obj; 
+   string first = tokens[0]; 
    string key; 
-
-   if (item == "}") {
+   string val; 
+   if (first == "}") {
       tokens.erase(tokens.begin(), tokens.begin()+1); 
-      return returnable; 
-   }
+      return returnable_obj; 
+   }  
 
    while (tokens.size()) {
       key = tokens[0]; 
-      if (key[0] == '"' && key[key.length() - 1] == '"' ) {
-         tokens.erase(tokens.begin(), tokens.begin() +1); 
+      // check that the key is a string
+
+      if (key[0] == '"' && key[key.size() - 1] == '"') {
+         returnable_obj.push_back(key); 
+         tokens.erase(tokens.begin(), tokens.begin()+1); 
       }
       else {
-         cout << "Key Error" << endl; 
+         cout << "Keys in a object must be strings" << endl; 
          exit(1); 
       }
 
       if (tokens[0] != ":") {
-         cout << "Must follow a key with a colon" << endl; 
+         cout << "Keys in an object must be followed by a colon" << endl; 
          exit(1); 
       }
+      // erase the colon 
       tokens.erase(tokens.begin(), tokens.begin()+1); 
-      item = parse_tokens(tokens); 
-      returnable.push_back(item); 
-      item = tokens[0]; 
-      if (item == "}") {
-         tokens.erase(tokens.begin(), tokens.begin() + 1); 
-         return returnable; 
+      // the value we get out should be the former first item in tokens, but its already been removed
+      val = parse_tokens(tokens); 
+      returnable_obj.push_back(val); 
+
+      // now, the first thing in the returnable obj should be a right curly bracket or a comma 
+
+      if (tokens[0] == "}") {
+         tokens.erase(tokens.begin(), tokens.begin()+1); 
+         return returnable_obj; 
       }
-      else if (item != ",") {
-         cout << "Expect comma between objects" << endl; 
+      else if (tokens[0] == ",") {
+         tokens.erase(tokens.begin(), tokens.begin()+1);
+      }
+      else {
+         cout << "Comma expected in between items in object" << endl; 
          exit(1); 
       }
-      tokens.erase(tokens.begin(), tokens.begin()+1); 
    }
-   cout << "Missing closing curly bracket" << endl; 
+   cout << "Object lacks closing curly bracket" << endl; 
    exit(1); 
-   return returnable; 
 
 }
 
 string parse_tokens(vector<string>& tokens) {
    string item = tokens[0]; 
 
-   if (item == "{" || item == "}") {
+   // either, start parsing a new object or a new string (recursion baby) or, return the key/next item in the list
+   if (item == "{") {
       tokens.erase(tokens.begin(), tokens.begin() + 1); 
       parse_obj(tokens); 
+      return tokens[0]; 
    }
    else if (item == "[") {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
       parse_list(tokens); 
+      return tokens[0]; 
    }
    else {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
-      return item; 
+      return tokens[0]; 
    }
-   return item; 
 }
 
 
@@ -230,12 +231,10 @@ int parse(string json) {
          cout << "Parsing Error: " << json[0] << endl; 
          exit(1); 
       }
-      //cout << json << endl; 
    }
    // Tokens should now be produced. 
-   // TODO: iterate through the tokens and make sure that they match a valid grammar
    if (tokens.size() > 0) {
-      string parser_returnable = parse_tokens(tokens); 
+      parse_tokens(tokens); 
    }
    else {
       cout << "Empty Input" << endl; 
