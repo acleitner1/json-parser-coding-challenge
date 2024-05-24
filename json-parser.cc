@@ -1,5 +1,6 @@
 // json-parser.cc
-// Creates a JSON parser 
+// Parses an input file to determine if the content of the file conforms to JSON lexical and syntactical norms. 
+// Returns 0 if true and exits with an error if not 
 // Anna Leitner: May 2024
 
 #include <fstream>
@@ -9,36 +10,52 @@
 
 using namespace std; 
 
-// Look for opening and closing quotes and then return what it is
+
+// Determine if the beginning of the argument, json, is a JSON string
+// If so, return the string. Otherwise, return an empty string
 string lexical_string(string& json) {
    string returnable = ""; 
    int backslash = 0; 
+
+   // If json doesn't begin with ", it cannot be a valid JSON string
    if (json[0] != '"') {
       return returnable; 
    }
    else {
       json = json.substr(1); 
       returnable+= '"'; 
+
+      // Continue until an end quote or the string is consumed
       while (((json[0] != '"') || (json[0] == '"' && backslash)) && json.length()) {
+
+         // Check for illegal exits
          if (backslash) {
             if (json[0] == 'x' || json[0] == '0') {
                cout << "Illegal Escape" << endl; 
                exit(1); 
             }
          }
+         
+         // Account for \" characters in a string
          if (json[0] == '\\' && !backslash) {
             backslash = 1; 
          }
          else {
             backslash = 0; 
          }
+
+         // Build the JSON string to add to vector of tokens
          returnable += json[0]; 
          json = json.substr(1); 
+
+         // Strings cannot contain newlines
          if (json[0] == '\n') {
             cout << "Newlines are illegal" << endl; 
             exit(1); 
          }
       }
+
+      // Strings must end in "
       if (json.length() == 0) {
          cout << "Unclosed string" << endl; 
          exit(1); 
@@ -48,6 +65,8 @@ string lexical_string(string& json) {
          json = json.substr(1); 
       }
    }
+
+   // Strings cannot contain tabs
    if (returnable.find("   ") != string::npos) {
       cout << "Tabs are illegal" << endl; 
       exit(1); 
@@ -55,13 +74,24 @@ string lexical_string(string& json) {
    return returnable; 
 }
 
+
+// Determine if the beginning of the argument, json, is a JSON number
+// If so, return the number as a string. Otherwise, return an empty string
 string lexical_num(string& json) {
    string returnable = ""; 
+   int e = 0; 
+   int dec = 0; 
+   
+   // Numbers must begin with a number or a negative sign 
    if (!isdigit(json[0]) && json[0] != '-') {
       return returnable; 
    }
+
+   // Add the first digit to the string 
    returnable += json[0]; 
    json = json.substr(1); 
+
+   // Leading zeroes are only allowed if followed by a . or , 
    if (returnable == "0" && json[0] != '.' && json[0] != ',') {
       cout << "Leading zeroes not allowed" << endl; 
       exit(1); 
@@ -69,12 +99,41 @@ string lexical_num(string& json) {
    else if (returnable == "0" && json[0] == '.') {
       returnable += json[0]; 
       json = json.substr(1); 
+      dec = 1; 
    }
-   while ((isdigit(json[0]) || json[0] == 'e' || json[0] == 'E' || json[0] == '.' || json[0] == '-' || json[0] == '+') && json.length()) {
+
+   // Continue until a valid number ends 
+   while ((isdigit(json[0]) || json[0] == 'e' || json[0] == 'E' || json[0] == '-' || json[0] == '+' || json[0] == '.') && json.length()) {
+      
+      // Check that only one exponent is present in a number 
+      if (json[0] == 'e' || json[0] == 'E') {
+         if (e) {
+            cout << "Only one exponent per number allowed" << endl; 
+            exit(1); 
+         }
+         e = 1; 
+      }
+
+      // Check that only one decimal point is present in a number
+      if (json[0] == '.') {
+         if (dec) {
+            cout << "Only one decimal point per number allowed" << endl; 
+            exit(1); 
+         }
+         dec = 1; 
+      }
+      // Check that plus and minus signs are properly used
+      if (json[0] == '-' || json[0] == '+') {
+         if (returnable[returnable.size() - 1] != 'e' && returnable[returnable.size() - 1] != 'E') {
+            cout << "Plus and minus can only follow an exponent" << endl; 
+            exit(1); 
+         }
+      }
       returnable+= json[0]; 
       json = json.substr(1); 
    }
 
+   // Check that json doesn't end without a terminating ] or }
    if (json.length() == 0) {
       cout << "Invalid end of input" << endl; 
       exit(1); 
@@ -82,7 +141,11 @@ string lexical_num(string& json) {
    return returnable;
 }
 
+
+// Determine if the beginning of the argument, json, is a JSON boolean
+// If so, return the boolean in string form. Otherwise, return an empty string
 string lexical_bool(string& json) {
+
    if (json.substr(0, 4) == "true") {
       json = json.substr(4); 
       return "true"; 
@@ -94,7 +157,11 @@ string lexical_bool(string& json) {
    return ""; 
 }
 
+
+// Determine if the beginning of the argument, json, is a JSON null
+// If so, return null in string form. Otherwise, return an empty string
 string lexical_null(string& json) {
+
    if (json.substr(0, 4) == "null") {
       json = json.substr(4); 
       return "null"; 
@@ -102,32 +169,45 @@ string lexical_null(string& json) {
    return ""; 
 }
 
+
 string parse_tokens(vector<string>& tokens); 
 
 
-vector<string> parse_list(vector<string>& tokens) {
-   vector<string> returnable_list; 
+// Parse a list present within a list of tokens 
+// and determine if it aligns with JSON lexical and syntactical guidelines
+void parse_list(vector<string>& tokens) {
+
+   // If tokens is empty, the list is not closed 
    if (tokens.size() == 0) {
       cout << "Invalid list" << endl; 
       exit(1); 
    }
 
    string item = tokens[0]; 
+
+   // Check if list is closed
    if (item == "]") {
       tokens.erase(tokens.begin(), tokens.begin()+1); 
-      return returnable_list; 
+      return; 
    }
+
+   // While there are more tokens, iterate through them
    while (tokens.size()) {
+
+      // Check if the item in the list is a nested list, nested object, or neither
       item = parse_tokens(tokens); 
-      returnable_list.push_back(item); 
+
+      // A list cannot end without a ]
       if (tokens.size() == 0) {
          cout << "Invalid list" << endl; 
          exit(1); 
       }
+
+      // Check that the list is ending or that the next item is comma delimited 
       item = tokens[0]; 
       if (item == "]") {
          tokens.erase(tokens.begin(), tokens.begin()+1); 
-         return returnable_list; 
+         return; 
       }
       else if (item != ",") {
          cout << "Missing comma in list" << endl;
@@ -141,9 +221,10 @@ vector<string> parse_list(vector<string>& tokens) {
          }
       }
    }
+
+   // Lists must end in a bracket; 
    cout << "Missing bracket at end of list" << endl; 
    exit(1); 
-   return returnable_list; 
 }
 
 vector<string> parse_obj(vector<string>& tokens) {
