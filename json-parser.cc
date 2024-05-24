@@ -93,17 +93,23 @@ string parse_tokens(vector<string>& tokens);
 
 vector<string> parse_list(vector<string>& tokens) {
    vector<string> returnable_list; 
+   if (tokens.size() == 0) {
+      cout << "Invalid list" << endl; 
+      exit(1); 
+   }
 
    string item = tokens[0]; 
    if (item == "]") {
       tokens.erase(tokens.begin(), tokens.begin()+1); 
       return returnable_list; 
    }
-
    while (tokens.size()) {
       item = parse_tokens(tokens); 
       returnable_list.push_back(item); 
-
+      if (tokens.size() == 0) {
+         cout << "Invalid list" << endl; 
+         exit(1); 
+      }
       item = tokens[0]; 
       if (item == "]") {
          tokens.erase(tokens.begin(), tokens.begin()+1); 
@@ -135,7 +141,6 @@ vector<string> parse_obj(vector<string>& tokens) {
    while (tokens.size()) {
       key = tokens[0]; 
       // check that the key is a string
-
       if (key[0] == '"' && key[key.size() - 1] == '"') {
          returnable_obj.push_back(key); 
          tokens.erase(tokens.begin(), tokens.begin()+1); 
@@ -154,9 +159,11 @@ vector<string> parse_obj(vector<string>& tokens) {
       // the value we get out should be the former first item in tokens, but its already been removed
       val = parse_tokens(tokens); 
       returnable_obj.push_back(val); 
-
       // now, the first thing in the returnable obj should be a right curly bracket or a comma 
-
+      if (!tokens.size()) {
+         cout << "Object lacks closing curly bracket" << endl; 
+         exit(1); 
+      }
       if (tokens[0] == "}") {
          tokens.erase(tokens.begin(), tokens.begin()+1); 
          return returnable_obj; 
@@ -175,26 +182,24 @@ vector<string> parse_obj(vector<string>& tokens) {
 }
 
 string parse_tokens(vector<string>& tokens) {
+   if (tokens.size() == 0) {
+      cout << "Missing closing bracket or brace" << endl; 
+   }
    string item = tokens[0]; 
-   cout << "tokens" << endl; 
+
    // either, start parsing a new object or a new string (recursion baby) or, return the key/next item in the list
    if (item == "{") {
       tokens.erase(tokens.begin(), tokens.begin() + 1); 
-      cout << "obj 1" << endl; 
       parse_obj(tokens); 
-      cout << "obj 2" << endl; 
       return item; 
    }
    else if (item == "[") {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
-      cout << "item 1" << endl; 
       parse_list(tokens); 
-      cout << "item 2" << endl; 
       return item; 
    }
    else {
       tokens.erase(tokens.begin(), tokens.begin() +1); 
-      cout << "erase" << endl; 
       return item; 
    }
 }
