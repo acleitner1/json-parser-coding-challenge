@@ -62,7 +62,7 @@ string lexical_num(string& json) {
    }
    returnable += json[0]; 
    json = json.substr(1); 
-   if (returnable == "0" && json[0] != '.') {
+   if (returnable == "0" && json[0] != '.' && json[0] != ',') {
       cout << "Leading zeroes not allowed" << endl; 
       exit(1); 
    }
@@ -260,7 +260,6 @@ int parse(string json) {
          json = json.substr(1); 
       }
       else if (json[0] != ' ' && json[0] != '\n' && json.length() > 0) {
-         cout << "Json: " << json << endl; 
          cout << "Parsing Error: " << json[0] << endl; 
          exit(1); 
       }
@@ -302,16 +301,7 @@ int main(int argc, char** argv) {
       data+= temp; 
       data+= "\n"; 
    }
-   // while(getline(input, temp)) {
-   //    cout << "temp: " << temp << endl; 
-   //    for (int i = 0; i < temp.length();i++) {
-   //       cout << temp[i] << endl; 
-   //    }
-   //    data+= temp; 
-   // }
-   int returnable = parse(data);
+   parse(data);
    input.close(); 
-   // if returnable is 0, return 0
-   // else, have a series of error codes to return based upon what returnable is 
-   return returnable;
+   return 0;
 }
