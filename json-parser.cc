@@ -20,6 +20,12 @@ string lexical_string(string& json) {
       json = json.substr(1); 
       returnable+= '"'; 
       while (((json[0] != '"') || (json[0] == '"' && backslash)) && json.length()) {
+         if (backslash) {
+            if (json[0] == 'x' || json[0] == '0') {
+               cout << "Illegal Escape" << endl; 
+               exit(1); 
+            }
+         }
          if (json[0] == '\\' && !backslash) {
             backslash = 1; 
          }
@@ -48,14 +54,14 @@ string lexical_num(string& json) {
    }
    returnable += json[0]; 
    json = json.substr(1); 
-   // // if (returnable == "0" && json[0] != '.') {
-   // //    cout << "Leading zeroes not allowed" << endl; 
-   // //    exit(1); 
-   // // }
-   // else if (returnable == "0" && json[0] == '.') {
-   //    returnable += json[0]; 
-   //    json = json.substr(1); 
-   // }
+   if (returnable == "0" && json[0] != '.') {
+      cout << "Leading zeroes not allowed" << endl; 
+      exit(1); 
+   }
+   else if (returnable == "0" && json[0] == '.') {
+      returnable += json[0]; 
+      json = json.substr(1); 
+   }
    while ((isdigit(json[0]) || json[0] == 'e' || json[0] == 'E' || json[0] == '.' || json[0] == '-' || json[0] == '+') && json.length()) {
       returnable+= json[0]; 
       json = json.substr(1); 
