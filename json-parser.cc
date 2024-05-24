@@ -34,6 +34,10 @@ string lexical_string(string& json) {
          }
          returnable += json[0]; 
          json = json.substr(1); 
+         if (json[0] == '\n') {
+            cout << "Newlines are illegal" << endl; 
+            exit(1); 
+         }
       }
       if (json.length() == 0) {
          cout << "Unclosed string" << endl; 
@@ -230,7 +234,7 @@ int parse(string json) {
    string temp_string; 
    vector<string> tokens; 
    while (json.length()) { 
-      while (json[0] == ' ') {
+      while (json[0] == ' ' || json[0] == '\n') {
          json = json.substr(1); 
       }
       temp_string = lexical_string(json); 
@@ -255,7 +259,8 @@ int parse(string json) {
          tokens.push_back(temp_string); 
          json = json.substr(1); 
       }
-      else if (json[0] != ' ') {
+      else if (json[0] != ' ' && json[0] != '\n' && json.length() > 0) {
+         cout << "Json: " << json << endl; 
          cout << "Parsing Error: " << json[0] << endl; 
          exit(1); 
       }
@@ -268,6 +273,7 @@ int parse(string json) {
       }
       else if (tokens[tokens.size() - 1] != "}" && tokens[tokens.size() - 1] != "]") {
          cout << "Invalid closing to input" << endl; 
+         exit(1); 
       }
       while (tokens.size()) {
          parse_tokens(tokens); 
@@ -293,12 +299,16 @@ int main(int argc, char** argv) {
    string data = ""; 
    string temp; 
    while(getline(input, temp)) {
-      cout << "temp: " << temp << endl; 
-      for (int i = 0; i < temp.length();i++) {
-         cout << temp[i] << endl; 
-      }
       data+= temp; 
+      data+= "\n"; 
    }
+   // while(getline(input, temp)) {
+   //    cout << "temp: " << temp << endl; 
+   //    for (int i = 0; i < temp.length();i++) {
+   //       cout << temp[i] << endl; 
+   //    }
+   //    data+= temp; 
+   // }
    int returnable = parse(data);
    input.close(); 
    // if returnable is 0, return 0
